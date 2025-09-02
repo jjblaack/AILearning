@@ -56,7 +56,29 @@ public class ChatService {
                     
                     @Override
                     public void onError(Throwable error) {
-                        sink.error(error);
+                        // 处理各种可能的错误
+                        if (error instanceof NullPointerException) {
+                            // 处理空指针异常
+                            String errorMsg = error.getMessage() != null ? error.getMessage() : "未知空指针异常";
+                            System.err.println("警告: 捕获到空指针异常: " + errorMsg);
+                            
+                            // 检查是否是getMessage或getContent的空指针异常
+                            if (errorMsg.contains("getMessage()") || errorMsg.contains("getContent()")) {
+                                sink.next("\n[系统提示: 模型返回了空响应，请重试]");
+                                onComplete.run();
+                                return;
+                            }
+                        }
+                        
+                        try {
+                            // 尝试从错误中恢复并继续
+                            System.err.println("错误: " + error.getClass().getName() + ": " + error.getMessage());
+                            sink.next("\n[系统错误: " + error.getMessage() + "]");
+                            onComplete.run();
+                        } catch (Exception e) {
+                            // 如果恢复失败，则传递错误
+                            sink.error(error);
+                        }
                     }
                 };
                 
