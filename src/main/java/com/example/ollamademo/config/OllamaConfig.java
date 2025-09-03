@@ -23,7 +23,7 @@ public class OllamaConfig {
                 .baseUrl(baseUrl)
                 .modelName(model)
                 .temperature(0.7)
-                .timeout(Duration.ofSeconds(120))
+                .timeout(Duration.ofSeconds(120))  // 使用Duration对象
                 .build();
     }
 }
